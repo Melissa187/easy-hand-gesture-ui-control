@@ -1,4 +1,4 @@
-# easy-hand-gesture-ui-control
+# easy-hand-gesture-ui-control-4SO22AI033
 A part of our major project where in we use Mediapipe Library in order to use hand movements to perform basic ui actions(In this Code:Zooming In and out and Changing the volume up and down)
 
 In this code, I have used Python 3.10 in order to allow the use of the MediaPipe library, which does not work well with updated versions of Python. This project is a part of our major project "Adaptive UI/UX for Users", where we aim to make the use of computers easier and more relaxing — especially for tech people and researchers. Inspired by how we use mobile phones, this code handles a part of it: enabling zoom in and zoom out functionality, and volume up and down control through hand gestures.
