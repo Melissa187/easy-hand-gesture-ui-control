@@ -4,15 +4,11 @@ import pyautogui
 
 # Initialize MediaPipe
 mp_hands = mp.solutions.hands
-mp_face = mp.solutions.face_mesh
 hands = mp_hands.Hands()
-face_mesh = mp_face.FaceMesh(refine_landmarks=True)
 mp_draw = mp.solutions.drawing_utils
 
 # Webcam input
 cap = cv2.VideoCapture(0)
-mode = "gesture"
-blink_counter = 0
 
 # Gesture mapping
 def get_gesture_action(lm_list):
@@ -40,19 +36,10 @@ def get_gesture_action(lm_list):
     else:
         return "none", fingers
 
-# Blink detection
-def detect_blink(face_landmarks):
-    left_eye_top = face_landmarks[159]
-    left_eye_bottom = face_landmarks[145]
-    vertical_distance = abs(left_eye_top.y - left_eye_bottom.y)
-    return vertical_distance < 0.015
-
 while True:
     success, img = cap.read()
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    
     results_hands = hands.process(img_rgb)
-    results_face = face_mesh.process(img_rgb)
 
     lm_list = []
     detected_fingers = []
@@ -65,18 +52,7 @@ while True:
                 lm_list.append((int(lm.x * w), int(lm.y * h)))
             mp_draw.draw_landmarks(img, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
-    # Face landmarks for blink
-    if results_face.multi_face_landmarks:
-        for face_landmarks in results_face.multi_face_landmarks:
-            if detect_blink(face_landmarks.landmark):
-                blink_counter += 1
-                if blink_counter > 2:
-                    mode = "audio" if mode == "gesture" else "gesture"
-                    blink_counter = 0
-            else:
-                blink_counter = 0
-
-    action, detected_fingers = get_gesture_action(lm_list) if mode == "gesture" else ("none", [])
+    action, detected_fingers = get_gesture_action(lm_list)
 
     # Perform action
     if action == "volume_up":
@@ -88,12 +64,10 @@ while True:
     elif action == "zoom_out":
         pyautogui.hotkey("ctrl", "-")
 
-    # Display mode, action, finger pattern
-    cv2.putText(img, f"Mode: {mode}", (10, 30),
-                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    cv2.putText(img, f"Action: {action}", (10, 70),
+    # Display info
+    cv2.putText(img, f"Action: {action}", (10, 40),
                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
-    cv2.putText(img, f"Fingers: {detected_fingers}", (10, 110),
+    cv2.putText(img, f"Fingers: {detected_fingers}", (10, 80),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 200, 100), 2)
 
     cv2.imshow("Easy Control", img)
